@@ -11,6 +11,24 @@ def cleaning_data(df):
     '''
     check data types, fills NaN in Cabin column
     '''
+    #Variables that are categorical - can be transform to dummy variable e.g.
+    category_vars =['Pclass','Sex', '']
+    print(category_vars)
+    
+    
+    
+    #Ticket variable needs cleaning:
+    #- different types of Ticket number may regard different class 
+    #- cross validate with Pclass
+    df.Ticket
+    
+    
+    
+    #Cabin variable has a lot of NaN 
+    #- which means many passanger didn't have a cabin at all 
+    #- to be coded as  value e.g. 'no_cabin'
+    #- cabin numbers have some code in them, 
+    #- letters and numbers may mean different levels of ship...
     
     
     return df
