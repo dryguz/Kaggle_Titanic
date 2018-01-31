@@ -16,8 +16,8 @@ X = prepare_data.feature_engin(X)
 
 import modeling
 
-model_types = ['svn', 'log_reg', 'rand_forest']
+model_types = ['svn', 'log_reg', 'rand_forest', 'xgboost']
 accuracies = []
 models = []
 
-modeling.svn_model(X)
+
