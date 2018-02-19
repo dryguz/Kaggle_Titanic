@@ -12,17 +12,14 @@ def cleaning_data(df):
     '''
     check data types, fills NaN in Cabin column
     '''
-    #Variables that are categorical - can be transform to dummy variable e.g.
-    category_vars =['Pclass','Sex', '']
-    print(category_vars)
     
+    #drop columns
+    df.drop('PassengerId', axis=1, inplace=True)
     
-    
-    #Ticket variable needs cleaning:
-    #- different types of Ticket number may regard different class 
-    #- cross validate with Pclass
-    df.Ticket
-    
+    #casting type of data
+    df.Pclass = df.Pclass.astype('category')
+    df.Sex = df.Sex.astype('category')
+    df.Survived = df.Survived.astype('category')
     
     
     #Cabin variable has a lot of NaN 
@@ -41,7 +38,8 @@ def cleaning_data(df):
         deck = Cabins.loc[:,col].str.extract('([A-Z])',expand=False)
         indx = df['Cabin_deck'] > deck
         df.loc[indx,'Cabin_deck'] =  deck[indx]
-            
+    
+    df.Cabin_deck = df.Cabin_deck.astype('category')        
     
     # age nan fill with a mean from group sex/cabin_deck
     male_indx = df.Sex == 'male'
