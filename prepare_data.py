@@ -26,9 +26,21 @@ def cleaning_data(df):
     
     #Cabin variable has a lot of NaN 
     #- which means many passanger didn't have a cabin at all 
-    #- to be coded as  value e.g. 'no_cabin'
-    #- cabin numbers have some code in them, 
-    #- letters and numbers may mean different levels of ship...
+    #- to be coded as  value e.g. '00'
+    df.Cabin.fillna('00', inplace=True)
+    
+    #- cabin numbers have some code in them,
+    #- after analysis - first letter is the signiture of a titanic's deck
+    # signitures of the decks are from A to G
+    # passengers wihout cabin are assigned letter Z
+    Cabins = df.Cabin.str.split(' ', expand=True)
+    
+    df['Cabin_deck'] = 'Z'
+    for col in Cabins.columns:
+        deck = Cabins.loc[:,col].str.extract('([A-Z])',expand=False)
+        indx = df['Cabin_deck'] > deck
+        df.loc[indx,'Cabin_deck'] =  deck[indx]
+            
     
     
     return df
