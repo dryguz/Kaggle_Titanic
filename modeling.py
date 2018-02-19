@@ -9,10 +9,35 @@ create classifications model
 # ---------------------------------------------------------------------------
 # svn_model
 
-def svn_(df):
+def svm_(df):
+'''
+training support vector machines for classification
+kernel is rbf, optimal C is search for in [1, 10, 100, 1000] 
+
+'''
+    from sklearn.preprocessing import Imputer, StandardScaler    
+    from sklearn.pipeline import Pipeline    
+    from sklearn import svm
+    from sklearn.model_selection import RandomizedSearchCV
+    import numpy as np
+    
+    clf = svm.SVC(kernel='rbf')
+    
+    steps = [('imputation',Imputer(strategy='NaN', axis=0)),
+             ('scaler', StandardScaler())
+             ('dummy',dummy),
+             ('clf':clf)]
     
 
-    return svn_acc, svn_model
+    svm_cls = Pipeline(steps)
+    
+    parameters = {'clf__C':np.linespace(1,1000,num=50),
+                  'clf__gamma':np.linespace(0.0001,0.1,num=50)}
+    
+    rm_clf = RandomizedSearchCV(pipeline, param_distribution=parameters)
+    rm_clf
+    
+    return svm_acc, svm_model
 
 
 # ---------------------------------------------------------------------------
