@@ -6,18 +6,23 @@ Created on Tue Jan 30 14:40:59 2018
 """
 
 import download_data
-train, test = download_data.import_data()
-
-
+import modeling
 import prepare_data
 
-X = prepare_data.cleaning_data(train)
-X = prepare_data.feature_engin(X)
+# download data
+train, test = download_data.import_data()
 
-import modeling
+# prepare data
+X = prepare_data.prepare_set(train)
 
-model_types = ['svn', 'log_reg', 'rand_forest', 'xgboost']
-accuracies = []
-models = []
+# set dictionary with models
+models = {'svm': [], 'log_reg': [], 'rand_forest': [], 'xgboost': []}
+
+# first one - svm
+svm_acc, svm_model = modeling.svm_(X)
+models['svm'].append(svm_acc)
+models['svm'].append(svm_model)
+
+print(models['svm'][0])
 
 
