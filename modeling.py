@@ -6,37 +6,38 @@ Created on Tue Jan 30 14:58:02 2018
 
 create classifications model 
 """
+from sklearn.preprocessing import Imputer, StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn import svm
+from sklearn.model_selection import RandomizedSearchCV
+import numpy as np
+
 # ---------------------------------------------------------------------------
 # svn_model
 
-def svm_(df):
-'''
-training support vector machines for classification
-kernel is rbf, optimal C is search for in [1, 10, 100, 1000] 
 
-'''
-    from sklearn.preprocessing import Imputer, StandardScaler    
-    from sklearn.pipeline import Pipeline    
-    from sklearn import svm
-    from sklearn.model_selection import RandomizedSearchCV
-    import numpy as np
+def svm_(df):
+    """
+    training support vector machines for classification
+    kernel is rbf, optimal C is search for in [1, 10, 100, 1000]
+    """
     
     clf = svm.SVC(kernel='rbf')
     
-    steps = [('imputation',Imputer(strategy='NaN', axis=0)),
-             ('scaler', StandardScaler())
-             ('dummy',dummy),
-             ('clf':clf)]
-    
+    steps = [('imputation', Imputer(missing_values='NaN', strategy='median', axis=0)),
+             ('Scaler', StandardScaler()),
+             ('clf', clf)]
 
     svm_cls = Pipeline(steps)
     
-    parameters = {'clf__C':np.linespace(1,1000,num=50),
-                  'clf__gamma':np.linespace(0.0001,0.1,num=50)}
+    parameters = {'clf__C': np.linspace(1, 1000, num=50),
+                  'clf__gamma': np.linspace(0.0001, 0.1, num=50)}
     
-    rm_clf = RandomizedSearchCV(pipeline, param_distribution=parameters)
-    rm_clf
-    
+    rm_clf = RandomizedSearchCV(svm_cls, param_distributions=parameters)
+
+    svm_model = rm_clf.fit(df)
+    svm_acc = rm_clf.score(df)
+
     return svm_acc, svm_model
 
 
