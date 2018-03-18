@@ -29,6 +29,12 @@ svm_acc, svm_model = modeling.svm_(X, y)
 models['svm'].append(np.mean(svm_acc))
 models['svm'].append(svm_model)
 
-print(models['svm'][0])
+print('Score for SVM model is {:.3}'.format(models['svm'][0]))
 
+# second one - logical regression
+lg_acc, lg_model = modeling.lg_(X,y)
+models['log_reg'].append(np.mean(lg_acc))
+models['log_reg'].append(lg_model)
+
+print('Score for Logical Regression is {:.3}'.format(models['log_reg'][0]))
 
