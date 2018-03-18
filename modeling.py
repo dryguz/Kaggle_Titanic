@@ -6,38 +6,66 @@ Created on Tue Jan 30 14:58:02 2018
 
 create classifications model 
 """
-from sklearn.preprocessing import Imputer, StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn import svm
-from sklearn.model_selection import RandomizedSearchCV
-import numpy as np
 
+from sklearn import svm
+from sklearn.model_selection import RandomizedSearchCV, cross_val_score
+from sklearn.preprocessing import StandardScaler, FunctionTransformer
+from sklearn.pipeline import Pipeline, FeatureUnion 
+import numpy as np
+import pandas as pd
 # ---------------------------------------------------------------------------
 # svn_model
 
-
-def svm_(df):
+def svm_(X, y):
     """
     training support vector machines for classification
     kernel is rbf, optimal C is search for in [1, 10, 100, 1000]
     """
+    for_scalling =[]
     
-    clf = svm.SVC(kernel='rbf')
+    for col in ['Age', 'SibSp', 'Parch', 'Fare']:
+        for_scalling.append(X.columns.get_loc(col))
+        
+    not_for_scalling = list(set(range(len(X.columns)))-set(for_scalling))
     
-    steps = [('imputation', Imputer(missing_values='NaN', strategy='median', axis=0)),
-             ('Scaler', StandardScaler()),
-             ('clf', clf)]
+    
+    def select_to_scal(data):
+        return data[:,for_scalling]
+    
+    
+    def select_not_to_scal(data):
+        return data[:,not_for_scalling]
+    
+    #cls = svm.SVC(kernel = 'rbf')
+    
+    steps = [('Union', FeatureUnion(transformer_list = [
+                ('for_scaler', Pipeline(steps =[
+                        ('select_for_scaler', FunctionTransformer(
+                                select_to_scal)
+                                ),
+                        ('StandardScaler', StandardScaler()
+                                )])
+                ),
+                ('not_scaler', FunctionTransformer(select_not_to_scal))
+                ])
+            ),
+            ('Estimator', svm.SVC(kernel = 'rbf'))
+            ]
+    
+    ppl = Pipeline(steps=steps)
+    
+    parameters = {'Estimator__C': np.linspace(1, 1000, num=50),
+                  'Estimator__gamma': np.linspace(0.0001, 0.1, num=50)}
+    
+    rm_clf = RandomizedSearchCV(ppl, 
+                                param_distributions=parameters, 
+                                n_iter=20,
+                                cv=5)
 
-    svm_cls = Pipeline(steps)
+    svm_model = rm_clf.fit(X, y)
+    svm_acc = cross_val_score(svm_model.best_estimator_, X, y, cv=5)
     
-    parameters = {'clf__C': np.linspace(1, 1000, num=50),
-                  'clf__gamma': np.linspace(0.0001, 0.1, num=50)}
     
-    rm_clf = RandomizedSearchCV(svm_cls, param_distributions=parameters)
-
-    svm_model = rm_clf.fit(df)
-    svm_acc = rm_clf.score(df)
-
     return svm_acc, svm_model
 
 
@@ -46,6 +74,7 @@ def svm_(df):
     
 def log_reg_(df):
     
+    log_reg_acc, log_reg_model = 1, 1
     return log_reg_acc, log_reg_model
 
 
@@ -54,11 +83,12 @@ def log_reg_(df):
     
 def rand_forest_(df):
     
+    rand_forest_model, rand_forest_model = 1, 1
     return rand_forest_model, rand_forest_model
 
 # ---------------------------------------------------------------------------
 # xgboost_model
     
 def xgboost_(df):
-    
+    xgb_acc, xgb_model = 1, 1
     return xgb_acc, xgb_model
