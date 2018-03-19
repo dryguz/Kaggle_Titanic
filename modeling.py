@@ -7,7 +7,7 @@ Created on Tue Jan 30 14:58:02 2018
 create classifications model 
 """
 
-from sklearn import svm
+from sklearn import svm, linear_model
 from sklearn.model_selection import RandomizedSearchCV, cross_val_score
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.pipeline import Pipeline, FeatureUnion 
@@ -73,6 +73,18 @@ def svm_(X, y):
 # log_reg_model
     
 def log_reg_(df):
+    
+    sgd_cls = linear_model.SGDClassifier(loss='log', 
+                                         penalty='elasticnet',
+                                         random_state=123)
+    
+    n_iter = np.ceil(10**6 / n)
+    
+    parameters = {'alpha': np.linspace(0.0001, 0.1, 50),
+                  'l1_ratio': np.linspace(0, 1, 50),
+                  'eta0': np.linspace(0,0.999, 50),
+                  
+            }
     
     log_reg_acc, log_reg_model = 1, 1
     return log_reg_acc, log_reg_model
