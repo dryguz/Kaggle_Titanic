@@ -75,7 +75,7 @@ class model_:
             
         self.not_for_scalling = list(set(range(len(self.X.columns)))-set(self.for_scalling))
         
-        self.trained_model = self.clf.fit(self.X,self.y)
+        self.trained_model = self.clf.fit(self.X, self.y)
         
         return self.trained_model
     
@@ -91,6 +91,11 @@ class model_:
                 self.y, cv=5)
         
         return self.models_score
+    
+    
+    def predict(self, X_test):
+        self.X_test = X_test
+        return self.trained_model.best_estimator_.predict(self.X_test)
    
 # ---------------------------------------------------------------------------
         
