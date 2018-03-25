@@ -6,6 +6,7 @@ Created on Tue Jan 30 14:40:59 2018
 """
 import sys, os
 import numpy as np
+import pandas as pd
 import time
 from sklearn import svm, linear_model
 from sklearn.ensemble import RandomForestClassifier
@@ -155,6 +156,9 @@ print('Score for XGBoost is {:.3}'.format(models['xgboost'][0]))
 
 # -----------------------------------------------------------------------------
 # do prediction on test set
+submission = pd.read_csv('data/gender_submission.csv')
 
 for key in models:
     models[key].append(models[key][2].predict(X_test))
+    submission['Survived'] = models[key][3]
+    submission.to_csv('data/{}_submission.csv'.format(key), index=False)
