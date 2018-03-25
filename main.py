@@ -52,11 +52,12 @@ models = {'svm': [],
 # -----------------------------------------------------------------------------
 # first one - svm
 
-svm_parameters = {'Estimator__C': np.linspace(1, 1000, num=50),
-              'Estimator__gamma': np.linspace(0.0001, 0.1, num=50)}
+svm_parameters = {'Estimator__C': np.linspace(1, 100, num=30),
+              'Estimator__gamma': np.linspace(0.001, 0.1, num=30)}
 
 svm_ = svm.SVC(kernel = 'rbf',
-                  random_state=123)
+               probability=True,
+               random_state=123)
         
 svm_ = modeling.model_(svm_, svm_parameters)
 
@@ -74,8 +75,8 @@ models['svm'].append(svm_model)
 # -----------------------------------------------------------------------------
 # second one - logical regression
 
-sgd_parameters = {'Estimator__alpha': np.linspace(0.0001, 0.1, 50),
-                  'Estimator__l1_ratio': np.linspace(0, 1, 50)
+sgd_parameters = {'Estimator__alpha': np.linspace(0.0001, 0.01, 30),
+                  'Estimator__l1_ratio': np.linspace(0.2, 0.8, 30)
                   }
 
 sgd_ = linear_model.SGDClassifier(loss='log', 
@@ -100,7 +101,7 @@ models['log_reg'].append(sgd_model)
 # -----------------------------------------------------------------------------
 # third one - random forest
 
-rf_parameters = {'Estimator__n_estimators': np.linspace(5, 200, 30, dtype='int'),
+rf_parameters = {'Estimator__n_estimators': np.linspace(5, 100, 30, dtype='int'),
                  'Estimator__max_features': np.linspace(0.02, 1.0, num=30)#,
 #                 'Estimator__min_samples_split': np.linspace(2, 10, 1),
 #                 'Estimator__min_samples_leaf': np.linspace(1, 10, 1)
@@ -125,9 +126,9 @@ models['rand_forest'].append(rf_model)
 # -----------------------------------------------------------------------------
 # fourth one - xgboost
 
-xgb_parameters = {'Estimator__max_depth': np.linspace(3, 33, num=30, dtype='int'),
-                  'Estimator__learning_rate': np.linspace(0.0001, 0.1, num=30),
-                  'Estimator__n_estimators': np.linspace(5, 200, 30, dtype='int')
+xgb_parameters = {'Estimator__max_depth': np.linspace(3, 15, num=30, dtype='int'),
+                  'Estimator__learning_rate': np.linspace(0.0001, 0.01, num=30),
+                  'Estimator__n_estimators': np.linspace(5, 100, 30, dtype='int')
                   }
 
 xgb_model = xgb.XGBClassifier()
@@ -145,6 +146,30 @@ models['xgboost'].append(np.mean(xgb_acc))
 models['xgboost'].append(duration)
 models['xgboost'].append(xgb_model)
 
+# -----------------------------------------------------------------------------
+# scikit-learn ensemble Voting Classifier
+
+from sklearn.ensemble import VotingClassifier
+
+list_of_models = []
+
+for key in models:
+    list_of_models.append(('{}'.format(key), models[key][2]))
+    
+voting_clf = VotingClassifier(list_of_models, voting='soft')
+
+start = time.time()
+
+voting_clf = voting_clf.fit(X, y)
+voting_acc = voting_clf.score(X, y)
+
+duration = time.time() - start
+
+models['voting_clf'] = []
+
+models['voting_clf'].append(np.mean(voting_acc))
+models['voting_clf'].append(duration)
+models['voting_clf'].append(voting_clf)
 
 # -----------------------------------------------------------------------------
 # see results
@@ -153,12 +178,22 @@ print('Score for SVM model is {:.3}'.format(models['svm'][0]))
 print('Score for Logical Regression is {:.3}'.format(models['log_reg'][0]))
 print('Score for Random Forest is {:.3}'.format(models['rand_forest'][0]))
 print('Score for XGBoost is {:.3}'.format(models['xgboost'][0]))
+print('Score for VotingClf of above models is {:.3}'.format(models['voting_clf'][0]))
 
 # -----------------------------------------------------------------------------
 # do prediction on test set
+
 submission = pd.read_csv('data/gender_submission.csv')
 
 for key in models:
     models[key].append(models[key][2].predict(X_test))
     submission['Survived'] = models[key][3]
     submission.to_csv('data/{}_submission.csv'.format(key), index=False)
+
+
+
+
+
+
+
+  
